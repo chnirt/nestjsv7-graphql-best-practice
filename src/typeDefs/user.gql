@@ -1,0 +1,39 @@
+type User {
+  _id: String!
+  username: String!
+  password: String!
+  age: Int!
+}
+
+input RegisterUserInput {
+  username: String!
+  password: String!
+  age: Int!
+}
+
+input LoginUserInput {
+  username: String!
+  password: String!
+}
+
+type LoginResponse {
+  accessToken: String!
+  refreshToken: String!
+}
+
+type Hello {
+  hello: String!
+}
+
+type Query {
+  hello: String!
+  today: Date!
+  uuid: String!
+  users: [User]!
+  # asd: String!
+}
+
+type Mutation {
+  register(input: RegisterUserInput!): Boolean
+  login(input: LoginUserInput!): LoginResponse!
+}

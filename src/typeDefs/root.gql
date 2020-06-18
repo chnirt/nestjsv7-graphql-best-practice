@@ -1,0 +1,8 @@
+scalar Date
+scalar Upload
+
+schema {
+  query: Query
+  mutation: Mutation
+  # subscription: Subscription
+}
