@@ -17,20 +17,6 @@ export class LoginUserInput {
     password: string;
 }
 
-export abstract class IQuery {
-    __typename?: 'IQuery';
-
-    abstract hello2(): string | Promise<string>;
-
-    abstract hello(): string | Promise<string>;
-
-    abstract today(): Date | Promise<Date>;
-
-    abstract uuid(): string | Promise<string>;
-
-    abstract users(): User[] | Promise<User[]>;
-}
-
 export class User {
     __typename?: 'User';
     _id: string;
@@ -50,6 +36,18 @@ export class Hello {
     hello: string;
 }
 
+export abstract class IQuery {
+    __typename?: 'IQuery';
+
+    abstract hello(): string | Promise<string>;
+
+    abstract today(): Date | Promise<Date>;
+
+    abstract uuid(): string | Promise<string>;
+
+    abstract users(): User[] | Promise<User[]>;
+}
+
 export abstract class IMutation {
     __typename?: 'IMutation';
 
@@ -58,4 +56,12 @@ export abstract class IMutation {
     abstract login(input: LoginUserInput): LoginResponse | Promise<LoginResponse>;
 }
 
+export abstract class ISubscription {
+    __typename?: 'ISubscription';
+
+    abstract userAdded(): User | Promise<User>;
+}
+
 export type Upload = any;
+export type JSON = any;
+export type JSONObject = any;

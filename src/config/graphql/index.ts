@@ -143,6 +143,12 @@ export class GraphqlService implements GqlOptionsFactory {
           if (token) {
             const currentUser = await verifyToken(token, 'accessToken');
 
+            if (!currentUser) {
+              throw new AuthenticationError(
+                'Authentication token is invalid, please try again.',
+              );
+            }
+
             return { currentUser };
           }
 

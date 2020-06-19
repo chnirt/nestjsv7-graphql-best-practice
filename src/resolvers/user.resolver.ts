@@ -14,8 +14,10 @@ import {
   RegisterUserInput,
   LoginResponse,
   LoginUserInput,
+  User,
 } from '../generator/graphql.schema';
-import { generateToken } from 'src/auth';
+import { generateToken } from '../auth';
+import { PubSub } from 'graphql-subscriptions';
 
 @Resolver('User')
 export class UserResolver {
@@ -41,7 +43,10 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
-  async register(@Args('input') input: RegisterUserInput): Promise<boolean> {
+  async register(
+    @Args('input') input: RegisterUserInput,
+    @Context('pubSub') pubSub: PubSub,
+  ): Promise<boolean> {
     const { username, password } = input;
 
     const existedUser = await getMongoManager().find(UserEntity, {
@@ -59,12 +64,13 @@ export class UserResolver {
 
     const createdUser = await getMongoManager().save(user);
 
+    pubSub.publish('USER_ADDED', { userAdded: createdUser });
+
     return createdUser ? true : false;
   }
 
-  @Mutation(() => String)
+  @Mutation(() => LoginResponse)
   async login(@Args('input') input: LoginUserInput): Promise<LoginResponse> {
-    console.log(input);
     const { username, password } = input;
 
     const foundUser = await getMongoManager().findOne(UserEntity, {
@@ -93,8 +99,8 @@ export class UserResolver {
     };
   }
 
-  @Subscription(() => UserEntity)
-  async userAdded(@Context('pubSub') pubSub: any): Promise<UserEntity> {
-    return pubSub.asyncIterator('userAdded');
+  @Subscription(() => User)
+  async userAdded(@Context('pubSub') pubSub: PubSub): Promise<any> {
+    return pubSub.asyncIterator('USER_ADDED');
   }
 }
