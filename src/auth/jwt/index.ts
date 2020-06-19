@@ -1,14 +1,14 @@
 import { sign, verify } from 'jsonwebtoken';
 import { getMongoRepository } from 'typeorm';
 import { AuthenticationError } from 'apollo-server-core';
-import { UserEntity } from '../../entities';
-import { LoginResponse } from '../../generator/graphql.schema';
+import { UserEntity } from '@entities';
+import { LoginResponse } from '@schema';
 import {
   ISSUER,
   AUDIENCE,
   ACCESS_TOKEN_SECRET,
   REFRESH_TOKEN_SECRET,
-} from '../../environments';
+} from '@environments';
 
 type TokenType = 'accessToken' | 'refreshToken';
 

@@ -8,16 +8,16 @@ import {
 } from '@nestjs/graphql';
 import { getMongoRepository, getMongoManager } from 'typeorm';
 import { ForbiddenError } from 'apollo-server-core';
-import { uuidv4, hashPassword, comparePassword } from '../utils';
-import { UserEntity } from '../entities/user.entity';
+import { PubSub } from 'graphql-subscriptions';
+import { uuidv4, hashPassword, comparePassword } from '@utils';
+import { UserEntity } from '@entities';
 import {
   RegisterUserInput,
   LoginResponse,
   LoginUserInput,
   User,
-} from '../generator/graphql.schema';
-import { generateToken } from '../auth';
-import { PubSub } from 'graphql-subscriptions';
+} from '@schema';
+import { generateToken } from '@auth';
 
 @Resolver('User')
 export class UserResolver {

@@ -9,7 +9,17 @@
     "target": "es2017",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
-    "incremental": true
+    "baseUrl": "./src",
+    "incremental": true,
+    "paths": {
+      "@auth": ["auth"],
+      "@common": ["common"],
+      "@config": ["config"],
+      "@environments": ["environments"],
+      "@entities": ["entities"],
+      "@shared": ["shared"],
+      "@utils": ["utils"],
+      "@schema": ["generator/graphql.schema"]
+    }
   }
 }

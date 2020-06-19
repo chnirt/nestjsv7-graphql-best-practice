@@ -11,14 +11,14 @@ import {
   PRIMARY_COLOR,
   END_POINT,
   VOYAGER,
-} from './environments';
-import { MyLogger } from './config';
+} from '@environments';
+import { MyLogger } from '@config';
 import {
   LoggingInterceptor,
   TimeoutInterceptor,
   ValidationPipe,
   LoggerMiddleware,
-} from './common';
+} from '@common';
 
 declare const module: any;
 
