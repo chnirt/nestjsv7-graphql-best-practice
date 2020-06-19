@@ -20,6 +20,8 @@ import {
   LoggerMiddleware,
 } from './common';
 
+declare const module: any;
+
 async function bootstrap() {
   try {
     const app = await NestFactory.create(AppModule, {
@@ -63,6 +65,11 @@ async function bootstrap() {
     app.enableShutdownHooks();
 
     await app.listen(PORT);
+
+    if (module.hot) {
+      module.hot.accept();
+      module.hot.dispose(() => app.close());
+    }
 
     NODE_ENV !== 'production'
       ? (Logger.log(
