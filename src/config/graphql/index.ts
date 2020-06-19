@@ -3,60 +3,40 @@ import { GqlOptionsFactory, GqlModuleOptions } from '@nestjs/graphql';
 import { AuthenticationError } from 'apollo-server-core';
 import { MemcachedCache } from 'apollo-server-cache-memcached';
 import { GraphQLError } from 'graphql';
-import {
-  // GraphQLExecutor,
-  // ValueOrPromise,
-  GraphQLResponse,
-  // GraphQLRequestContext,
-  // Logger,
-  // SchemaHash,
-} from 'apollo-server-types';
+import { GraphQLResponse } from 'apollo-server-types';
 import { PubSub } from 'graphql-subscriptions';
-import { NODE_ENV, END_POINT, FE_URL } from '../../environments';
+import * as depthLimit from 'graphql-depth-limit';
+import * as chalk from 'chalk';
+import GraphQLJSON, { GraphQLJSONObject } from 'graphql-type-json';
+import { MockList } from 'apollo-server-express';
+import {
+  NODE_ENV,
+  END_POINT,
+  FE_URL,
+  ACCESS_TOKEN,
+  GRAPHQL_DEPTH_LIMIT,
+  PRIMARY_COLOR,
+} from '../../environments';
+import schemaDirectives from './schemaDirectives';
+import { verifyToken } from '../../auth';
 
 const pubSub = new PubSub();
-
-// const query = `
-// query hello{
-//   hello
-// }
-
-// query users {
-//   users {
-//     _id
-//     username
-//     password
-//     age
-//   }
-// }
-
-// mutation register {
-//   register(input: {
-//     username: "chin"
-//     password: "123"
-//     age: 26
-//   })
-// }
-// `;
 
 @Injectable()
 export class GraphqlService implements GqlOptionsFactory {
   async createGqlOptions(): Promise<GqlModuleOptions> {
     return {
       typePaths: ['./**/*.(gql|graphql)'],
-      // resolvers: {
-      //   JSON: GraphQLJSON,
-      //   JSONObject: GraphQLJSONObject,
-      // },
-      // extensions: [() => new MyErrorTrackingExtension()],
-      mocks:
-        NODE_ENV === 'testing' &&
-        {
-          // String: () => 'Chnirt',
-          // Query: () => ({
-          //   users: () => new MockList([2, 6]),
-          // }),
-        },
+      resolvers: {
+        JSON: GraphQLJSON,
+        JSONObject: GraphQLJSONObject,
+      },
+      mocks: NODE_ENV === 'testing' && {
+        String: (): string => 'Chnirt',
+        Query: (): any => ({
+          users: (): any => new MockList([2, 6]),
+        }),
+      },
       resolverValidationOptions: {
         requireResolversForResolveType: false,
       },
@@ -79,29 +59,24 @@ export class GraphqlService implements GqlOptionsFactory {
           }
         });
       },
-      // definitions: {
-      // path: join(process.cwd(), 'src/graphql.ts'),
-      // outputAs: 'class',
-      // },
-      // schemaDirectives,
-      // directiveResolvers,
-      // validationRules: [
-      //   depthLimit(
-      //     GRAPHQL_DEPTH_LIMIT!,
-      //     { ignore: [/_trusted$/, 'idontcare'] },
-      //     depths => {
-      //       if (depths[''] === GRAPHQL_DEPTH_LIMIT! - 1) {
-      //         Logger.warn(
-      //           `⚠️  You can only descend ${chalk
-      //             .hex(PRIMARY_COLOR!)
-      //             .bold(`${GRAPHQL_DEPTH_LIMIT!}`)} levels.`,
-      //           'GraphQL',
-      //           false,
-      //         );
-      //       }
-      //     },
-      //   ),
-      // ],
+      schemaDirectives,
+      validationRules: [
+        depthLimit(
+          GRAPHQL_DEPTH_LIMIT,
+          { ignore: [/_trusted$/, 'idontcare'] },
+          depths => {
+            if (depths[''] === GRAPHQL_DEPTH_LIMIT - 1) {
+              Logger.warn(
+                `⚠️  You can only descend ${chalk
+                  .hex(PRIMARY_COLOR)
+                  .bold(GRAPHQL_DEPTH_LIMIT)} levels.`,
+                'GraphQL',
+                false,
+              );
+            }
+          },
+        ),
+      ],
       introspection: true,
       playground: NODE_ENV !== 'production' && {
         settings: {
@@ -119,12 +94,7 @@ export class GraphqlService implements GqlOptionsFactory {
         //   {
         //     name: 'default',
         //     endpoint: END_POINT,
-        //     query,
-        //   },
-        //   {
-        //     name: 'authenticate',
-        //     endpoint: END_POINT,
-        //     query,
+        //     query: { hello },
         //   },
         // ],
       },
@@ -134,39 +104,24 @@ export class GraphqlService implements GqlOptionsFactory {
         stripFormattedExtensions: false,
         calculateHttpHeaders: false,
       },
-      // plugins: [responseCachePlugin()],
       context: async ({ req, res, connection }): Promise<any> => {
-        if (connection) {
-          const { currentUser } = connection.context;
-
-          return {
-            pubSub,
-            currentUser,
-          };
-        }
-
         let currentUser;
 
-        // console.log(ACCESS_TOKEN, req.headers)
+        if (connection) {
+          currentUser = connection.context.currentUser;
+        } else {
+          const token = req.headers[ACCESS_TOKEN] || '';
 
-        // const token = req.headers[ACCESS_TOKEN!] || '';
-
-        // console.log('token', token)
-        // if (token) {
-        //   currentUser = await verifyToken(token, 'accessToken');
-        // }
-
-        // console.log(currentUser);
+          if (token) {
+            currentUser = await verifyToken(token, 'accessToken');
+          }
+        }
 
         return {
           req,
           res,
           pubSub,
           currentUser,
-          // trackErrors(errors) {
-          //   // Track the errors
-          //   console.log(errors);
-          // },
         };
       },
       formatError: (error: GraphQLError): any => ({
@@ -179,37 +134,25 @@ export class GraphqlService implements GqlOptionsFactory {
       subscriptions: {
         path: `/${END_POINT}`,
         keepAlive: 1000,
-        onConnect: (connectionParams, webSocket, context): any => {
+        onConnect: async (connectionParams: unknown): Promise<any> => {
           NODE_ENV !== 'production' &&
             Logger.debug(`🔗  Connected to websocket`, 'GraphQL');
 
-          let currentUser;
+          const token = connectionParams[ACCESS_TOKEN];
 
-          // const token = connectionParams[ACCESS_TOKEN];
+          if (token) {
+            const currentUser = await verifyToken(token, 'accessToken');
 
-          // if (token) {
-          //   currentUser = await verifyToken(token, 'accessToken');
-
-          //   await getMongoRepository(User).updateOne(
-          //     { _id: currentUser._id },
-          //     {
-          //       $set: { isOnline: true },
-          //     },
-          //     {
-          //       upsert: true,
-          //     },
-          //   );
-
-          //   return { currentUser };
-          // }
+            return { currentUser };
+          }
 
           throw new AuthenticationError(
             'Authentication token is invalid, please try again.',
           );
         },
-        onDisconnect: async (webSocket, context) => {
+        onDisconnect: (): any => {
           NODE_ENV !== 'production' &&
-            Logger.error(`❌  Disconnected to websocket`, '', 'GraphQL', false);
+            Logger.error('❌  Disconnected to websocket', '', 'GraphQL', false);
         },
       },
       persistedQueries: {

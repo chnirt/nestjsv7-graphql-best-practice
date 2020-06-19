@@ -64,14 +64,13 @@ async function bootstrap() {
 
     await app.listen(PORT);
 
-    Logger.log(
-      `🤬  Application is running on: ${await app.getUrl()}`,
-      'NestJS',
-      false,
-    );
-
     NODE_ENV !== 'production'
       ? (Logger.log(
+          `🤬  Application is running on: ${await app.getUrl()}`,
+          'NestJS',
+          false,
+        ),
+        Logger.log(
           `🚀  Server ready at http://${DOMAIN}:${chalk
             .hex(PRIMARY_COLOR)
             .bold(PORT)}/${END_POINT}`,
