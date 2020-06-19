@@ -1,8 +1,17 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Subscription,
+  Context,
+} from '@nestjs/graphql';
 import { getMongoRepository, getMongoManager } from 'typeorm';
-import { v1 as uuidv1 } from 'uuid';
+import { uuidv4 } from '../utils';
 import { UserEntity } from '../entities/user.entity';
 import { RegisterUserInput } from '../generator/graphql.schema';
+import { hashPassword } from '../utils';
+import { ForbiddenError } from 'apollo-server-core';
 
 @Resolver('User')
 export class UserResolver {
@@ -18,7 +27,7 @@ export class UserResolver {
 
   @Query()
   async uuid(): Promise<string> {
-    return uuidv1();
+    return uuidv4();
   }
 
   @Query()
@@ -29,10 +38,28 @@ export class UserResolver {
 
   @Mutation()
   async register(@Args('input') input: RegisterUserInput): Promise<boolean> {
-    const user = new UserEntity({ ...input });
+    const { username } = input;
+
+    const existedUser = await getMongoManager().find(UserEntity, {
+      username,
+    });
+
+    if (existedUser.length > 0) {
+      throw new ForbiddenError('Username is existed.');
+    }
+
+    const user = new UserEntity({
+      ...input,
+      password: await hashPassword(input.password),
+    });
 
     const createdUser = await getMongoManager().save(user);
 
     return createdUser ? true : false;
+  }
+
+  @Subscription(() => UserEntity)
+  async userAdded(@Context('pubSub') pubSub: any): Promise<UserEntity> {
+    return pubSub.asyncIterator('userAdded');
   }
 }

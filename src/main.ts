@@ -64,7 +64,11 @@ async function bootstrap() {
 
     await app.listen(PORT);
 
-    Logger.log(`Application is running on: ${await app.getUrl()}`);
+    Logger.log(
+      `🤬  Application is running on: ${await app.getUrl()}`,
+      'NestJS',
+      false,
+    );
 
     NODE_ENV !== 'production'
       ? (Logger.log(

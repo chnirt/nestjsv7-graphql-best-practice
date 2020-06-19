@@ -48,6 +48,19 @@ const enviroment = {
 };
 const TYPEORM = enviroment[NODE_ENV];
 
+// jsonwebtoken
+const ISSUER: string = process.env.ISSUER || 'Chnirt corp';
+const AUDIENCE: string = process.env.AUDIENCE || 'http://chnirt.github.io';
+const ACCESS_TOKEN: string = process.env.ACCESS_TOKEN || 'access-token';
+const ACCESS_TOKEN_SECRET: string =
+  process.env.ACCESS_TOKEN_SECRET || 'access-token-key';
+const REFRESH_TOKEN: string = process.env.REFRESH_TOKEN || 'refresh-token';
+const REFRESH_TOKEN_SECRET: string =
+  process.env.REFRESH_TOKEN_SECRET || 'refresh-token-key';
+
+// bcrypt
+const BCRYPT_SALT: number = +process.env.BCRYPT_SALT || 10;
+
 export {
   NODE_ENV,
   AUTHOR,
@@ -60,4 +73,11 @@ export {
   RATE_LIMIT_MAX,
   GRAPHQL_DEPTH_LIMIT,
   TYPEORM,
+  ISSUER,
+  AUDIENCE,
+  ACCESS_TOKEN,
+  ACCESS_TOKEN_SECRET,
+  REFRESH_TOKEN,
+  REFRESH_TOKEN_SECRET,
+  BCRYPT_SALT,
 };

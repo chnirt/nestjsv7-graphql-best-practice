@@ -30,6 +30,7 @@
     "@types/mongodb": "^3.5.22",
     "apollo-server-cache-memcached": "^0.6.5",
     "apollo-server-express": "^2.15.0",
+    "bcrypt": "^5.0.0",
     "cache-manager": "^3.3.0",
     "chalk": "^4.1.0",
     "class-transformer": "^0.2.3",

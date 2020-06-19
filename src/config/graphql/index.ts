@@ -14,7 +14,7 @@ import {
 import { PubSub } from 'graphql-subscriptions';
 import { NODE_ENV, END_POINT, FE_URL } from '../../environments';
 
-const pubsub = new PubSub();
+const pubSub = new PubSub();
 
 // const query = `
 // query hello{
@@ -140,7 +140,7 @@ export class GraphqlService implements GqlOptionsFactory {
           const { currentUser } = connection.context;
 
           return {
-            // pubsub,
+            pubSub,
             currentUser,
           };
         }
@@ -156,12 +156,12 @@ export class GraphqlService implements GqlOptionsFactory {
         //   currentUser = await verifyToken(token, 'accessToken');
         // }
 
-        console.log(currentUser);
+        // console.log(currentUser);
 
         return {
           req,
           res,
-          pubsub,
+          pubSub,
           currentUser,
           // trackErrors(errors) {
           //   // Track the errors

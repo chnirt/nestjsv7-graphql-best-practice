@@ -1,6 +1,6 @@
 import { Entity, ObjectIdColumn, Column } from 'typeorm';
-import { v1 as uuidv1 } from 'uuid';
 import { Expose, plainToClass } from 'class-transformer';
+import { uuidv4 } from '../utils';
 
 @Entity({
   name: 'users',
@@ -34,7 +34,7 @@ export class UserEntity {
           excludeExtraneousValues: true,
         }),
       );
-      this._id = this._id || uuidv1();
+      this._id = this._id || uuidv4();
     }
   }
 }
