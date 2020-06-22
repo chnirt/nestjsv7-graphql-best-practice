@@ -35,13 +35,14 @@ const enviroment = {
   testing: {
     url: MLAB_URL,
   },
-  // staging: {
-  //   host: 'localhost',
-  //   port: MONGO_PORT!,
-  //   username: '',
-  //   password: '',
-  //   database: MONGO_DB!,
-  // },
+  staging: {
+    url: MLAB_URL,
+    // host: 'localhost',
+    // port: MONGO_PORT!,
+    // username: '',
+    // password: '',
+    // database: MONGO_DB!,
+  },
   production: {
     url: MLAB_URL,
   },

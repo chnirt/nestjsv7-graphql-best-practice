@@ -2,7 +2,7 @@ import { sign, verify } from 'jsonwebtoken';
 import { getMongoRepository } from 'typeorm';
 import { AuthenticationError } from 'apollo-server-core';
 import { UserEntity } from '@entities';
-import { LoginResponse } from '@schema';
+import { LoginResponse } from '@generator';
 import {
   ISSUER,
   AUDIENCE,

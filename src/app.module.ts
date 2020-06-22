@@ -1,6 +1,7 @@
 import { Module, CacheModule } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import * as Resolvers from './resolvers';
@@ -18,6 +19,7 @@ import { DateScalar, UploadScalar } from './config/graphql/scalars';
     CacheModule.registerAsync({
       useClass: CacheService,
     }),
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [

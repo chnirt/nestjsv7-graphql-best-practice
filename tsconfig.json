@@ -15,11 +15,11 @@
       "@auth": ["auth"],
       "@common": ["common"],
       "@config": ["config"],
-      "@environments": ["environments"],
+      "@constant": ["constant"],
       "@entities": ["entities"],
-      "@shared": ["shared"],
-      "@utils": ["utils"],
-      "@schema": ["generator/graphql.schema"]
+      "@environments": ["environments"],
+      "@generator": ["generator/graphql.schema"],
+      "@utils": ["utils"]
     }
   }
 }

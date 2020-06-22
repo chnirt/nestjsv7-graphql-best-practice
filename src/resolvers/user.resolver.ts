@@ -16,8 +16,9 @@ import {
   LoginResponse,
   LoginUserInput,
   User,
-} from '@schema';
+} from '@generator';
 import { generateToken } from '@auth';
+import { USER_ADDED } from '../constant';
 
 @Resolver('User')
 export class UserResolver {
@@ -64,7 +65,7 @@ export class UserResolver {
 
     const createdUser = await getMongoManager().save(user);
 
-    pubSub.publish('USER_ADDED', { userAdded: createdUser });
+    pubSub.publish(USER_ADDED, { userAdded: createdUser });
 
     return createdUser ? true : false;
   }
@@ -101,6 +102,6 @@ export class UserResolver {
 
   @Subscription(() => User)
   async userAdded(@Context('pubSub') pubSub: PubSub): Promise<any> {
-    return pubSub.asyncIterator('USER_ADDED');
+    return pubSub.asyncIterator(USER_ADDED);
   }
 }
